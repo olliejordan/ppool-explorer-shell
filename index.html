@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' blob: data:; connect-src 'self' https://wysrvetjedezygfqznjh.supabase.co; base-uri 'none'; form-action 'none'">
+<title>Profit Pool Explorer</title>
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="explorer.css">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<main id="ppa-login" class="ppa-login" aria-labelledby="ppa-login-title"></main>
+
+<div id="ppa-app" class="ppa-app" hidden>
+  <header class="ppa-bar" id="ppa-bar"></header>
+  <div id="ppa-explorer"></div>
+  <section id="ppa-feedback" class="ppa-feedback" hidden aria-label="Feedback"></section>
+</div>
+
+<aside id="ppa-drawer" class="ppa-drawer" hidden role="dialog" aria-label="Ask a question"></aside>
+<div id="ppa-modal-root"></div>
+<div id="ppa-toast" class="ppa-toast" role="status" aria-live="polite"></div>
+
+<script src="config.js"></script>
+<script src="explorer.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
