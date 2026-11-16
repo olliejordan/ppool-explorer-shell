@@ -1021,8 +1021,10 @@ function renderUsers(list) {
   var host = $("ppa-users");
   clear(host);
   var msg = h("p", { class: "ppa-msg", role: "status", id: "ppa-users-msg" });
+  if (window.MutationObserver) new MutationObserver(function () { if (msg.textContent) toast(msg.textContent); }).observe(msg, { childList: true, characterData: true, subtree: true });
   host.appendChild(h("h2", { text: "Users" }));
   host.appendChild(h("p", { class: "ppa-note", text: "Passwords are at least 12 characters. They are sent once to set the account and are never shown or stored here. Tell each person their password directly." }));
+  host.appendChild(msg);
   list.forEach(function (u) {
     var pw = h("input", { type: "password", autocomplete: "new-password", placeholder: "New password", "aria-label": "New password for " + u.display_name });
     var setBtn = h("button", { type: "button", class: "ppa-btn ppa-small", text: "Set password" });
@@ -1067,7 +1069,6 @@ function renderUsers(list) {
   });
   host.appendChild(h("h3", { text: "Add a user" }));
   host.appendChild(h("div", { class: "ppa-form" }, [em, nm, np, add]));
-  host.appendChild(msg);
 }
 
 // ------------------------------------------------------------ keyboard
