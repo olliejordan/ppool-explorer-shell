@@ -15,11 +15,19 @@
 
 <div id="ppa-app" class="ppa-app" hidden>
   <header class="ppa-bar" id="ppa-bar"></header>
-  <div id="ppa-explorer"></div>
-  <section id="ppa-feedback" class="ppa-feedback" hidden aria-label="Feedback"></section>
+  <div class="ppa-body">
+    <div class="ppa-main">
+      <div id="ppa-explorer-wrap" class="ppa-explorer-wrap"><div id="ppa-explorer"></div><div id="ppa-pins" class="ppa-pins"></div></div>
+      <section id="ppa-feedback" class="ppa-feedback" hidden aria-label="Feedback"></section>
+    </div>
+    <aside id="ppa-rail" class="ppa-rail" hidden aria-label="Comments and assistant">
+      <div id="ppa-rail-tabs" class="ppa-rail-tabs" role="tablist"></div>
+      <section id="ppa-threads" class="ppa-threads" aria-label="Comments"></section>
+      <section id="ppa-drawer" class="ppa-drawer" hidden aria-label="Ask a question"></section>
+    </aside>
+  </div>
 </div>
 
-<aside id="ppa-drawer" class="ppa-drawer" hidden role="dialog" aria-label="Ask a question"></aside>
 <div id="ppa-modal-root"></div>
 <div id="ppa-toast" class="ppa-toast" role="status" aria-live="polite"></div>
 
