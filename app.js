@@ -278,6 +278,7 @@
       h("button", { type: "button", id: "ppa-tab-explorer", role: "tab", class: "ppa-tab", text: "Explorer", onclick: function () { setView("explorer"); } }),
       h("button", { type: "button", id: "ppa-tab-feedback", role: "tab", class: "ppa-tab", text: "Feedback", onclick: function () { setView("feedback"); } })
     ]);
+    if (isAdmin()) tabs.appendChild(h("button", { type: "button", id: "ppa-tab-users", role: "tab", class: "ppa-tab", text: "Users", onclick: function () { setView("users"); } }));
     var who = S.me ? S.me.display_name + (S.me.role === "admin" ? " (admin)" : "") : "";
     bar.appendChild(h("span", { class: "ppa-bar-title", text: "Profit Pool Explorer" }));
     bar.appendChild(tabs);
@@ -307,8 +308,10 @@
     if (v !== "explorer") setCommentMode(false);
     schedulePins();
     $("ppa-feedback").hidden = v !== "feedback";
+    $("ppa-users").hidden = v !== "users";
     markTabs();
     if (v === "feedback") openFeedback();
+    if (v === "users") openUsers();
   }
 
   // ------------------------------------------------------------ targets and badges
