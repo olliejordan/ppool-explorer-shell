@@ -292,7 +292,7 @@
     markTabs();
   }
   function markTabs() {
-    ["explorer", "feedback"].forEach(function (v) {
+    ["explorer", "feedback", "users"].forEach(function (v) {
       var t = $("ppa-tab-" + v);
       if (!t) return;
       t.setAttribute("aria-selected", S.view === v ? "true" : "false");
@@ -1003,7 +1003,71 @@
     }).catch(function () { toast("Could not reach the server."); });
   }
 
-  // ------------------------------------------------------------ keyboard
+  
+// ------------------------------------------------------------ user management (administrator only; the function enforces it)
+function openUsers() {
+  var host = $("ppa-users");
+  clear(host);
+  host.appendChild(h("p", { class: "ppa-loading", text: "Loading…" }));
+  callFn("users_list").then(function (r) {
+    if (!r.ok) { clear(host); host.appendChild(h("p", { class: "ppa-error", text: r.body.message || "Could not load users (" + r.status + ")." })); return; }
+    renderUsers(r.body.users || []);
+  }, function () { clear(host); host.appendChild(h("p", { class: "ppa-error", text: "Could not reach the server." })); });
+}
+function renderUsers(list) {
+  var host = $("ppa-users");
+  clear(host);
+  var msg = h("p", { class: "ppa-msg", role: "status", id: "ppa-users-msg" });
+  host.appendChild(h("h2", { text: "Users" }));
+  host.appendChild(h("p", { class: "ppa-note", text: "Passwords are at least 12 characters. They are sent once to set the account and are never shown or stored here. Tell each person their password directly." }));
+  list.forEach(function (u) {
+    var pw = h("input", { type: "password", autocomplete: "new-password", placeholder: "New password", "aria-label": "New password for " + u.display_name });
+    var setBtn = h("button", { type: "button", class: "ppa-btn ppa-small", text: "Set password" });
+    var actBtn = h("button", { type: "button", class: "ppa-btn ppa-small", text: u.active ? "Deactivate" : "Reactivate" });
+    setBtn.addEventListener("click", function () {
+      if (!pw.value) { msg.textContent = "Type a new password first."; return; }
+      setBtn.disabled = true;
+      callFn("user_password", { user_id: u.user_id, password: pw.value }).then(function (r) {
+        setBtn.disabled = false;
+        msg.textContent = r.body.message || (r.ok ? "Done." : "Not changed (" + r.status + ").");
+        if (r.ok) pw.value = "";
+      }, function () { setBtn.disabled = false; msg.textContent = "Could not reach the server."; });
+    });
+    actBtn.addEventListener("click", function () {
+      actBtn.disabled = true;
+      callFn("user_active", { user_id: u.user_id, active: !u.active }).then(function (r) {
+        msg.textContent = r.body.message || (r.ok ? "Done." : "Not changed (" + r.status + ").");
+        if (r.ok) openUsers(); else actBtn.disabled = false;
+      }, function () { actBtn.disabled = false; msg.textContent = "Could not reach the server."; });
+    });
+    host.appendChild(h("article", { class: "ppa-item ppa-user" + (u.active ? "" : " ppa-user-off") }, [
+      h("header", { class: "ppa-item-head" }, [
+        h("strong", { text: u.display_name }),
+        h("span", { class: "ppa-type", text: u.role }),
+        h("span", { class: "ppa-status", text: u.active ? "active" : "deactivated" }),
+        h("span", { class: "ppa-by", text: (u.email || "") + (u.last_sign_in_at ? " · last in " + fmtTime(u.last_sign_in_at) : " · never signed in") })
+      ]),
+      h("div", { class: "ppa-row" }, [pw, setBtn, actBtn])
+    ]));
+  });
+  var em = h("input", { type: "email", id: "ppa-new-email", autocomplete: "off", placeholder: "name@example.com", "aria-label": "Email address" });
+  var nm = h("input", { type: "text", id: "ppa-new-name", maxlength: "80", autocomplete: "off", placeholder: "Name shown to others", "aria-label": "Name" });
+  var np = h("input", { type: "password", id: "ppa-new-pass", autocomplete: "new-password", placeholder: "Password (12+ characters)", "aria-label": "Password" });
+  var add = h("button", { type: "button", class: "ppa-btn ppa-primary", id: "ppa-new-add", text: "Add user" });
+  add.addEventListener("click", function () {
+    add.disabled = true;
+    callFn("user_add", { email: em.value, display_name: nm.value, password: np.value }).then(function (r) {
+      add.disabled = false;
+      msg.textContent = r.body.message || (r.ok ? "Added." : "Not added (" + r.status + ").");
+      if (r.ok) openUsers();
+    }, function () { add.disabled = false; msg.textContent = "Could not reach the server."; });
+  });
+  host.appendChild(h("h3", { text: "Add a user" }));
+  host.appendChild(h("div", { class: "ppa-form" }, [em, nm, np, add]));
+  host.appendChild(msg);
+}
+
+// ------------------------------------------------------------ keyboard
   document.addEventListener("keydown", function (e) {
     if (e.key !== "Escape") return;
     if ($("ppa-modal-root").firstChild) clear($("ppa-modal-root"));

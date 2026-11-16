@@ -148,3 +148,6 @@ textarea { resize: vertical; }
 .ppa-thinking { border-top: 1px solid var(--ppa-line); padding-top: 8px; margin-top: 8px; }
 .ppa-pop .ppa-btn { padding: 5px 10px; font-size: 12.5px; white-space: nowrap; }
 .ppa-pop .ppa-msg:empty { display: none; }
+.ppa-user .ppa-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+.ppa-user .ppa-row input { max-width: 240px; }
+.ppa-user-off { opacity: .6; }
