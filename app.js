@@ -144,8 +144,11 @@
     var send = h("button", { type: "submit", class: "ppa-btn ppa-primary", text: "Send code" });
     var verify = h("button", { type: "submit", class: "ppa-btn ppa-primary", text: "Sign in" });
     var back = h("button", { type: "button", class: "ppa-btn ppa-link", text: "Use a different email" });
+    var pw = h("input", { type: "password", id: "ppa-password", autocomplete: "current-password", placeholder: "Password (optional)" });
+    var pwBtn = h("button", { type: "button", class: "ppa-btn ppa-link", text: "Sign in with a password instead" });
     var step1 = h("form", { class: "ppa-form", id: "ppa-step-email" }, [
-      h("label", { for: "ppa-email", text: "Email address" }), email, send
+      h("label", { for: "ppa-email", text: "Email address" }), email, send,
+      h("label", { for: "ppa-password", text: "Or use the password you were given" }), pw, pwBtn
     ]);
     var step2 = h("form", { class: "ppa-form", id: "ppa-step-code", hidden: true }, [
       h("label", { for: "ppa-code", text: "Code from your email" }), code, verify, back
@@ -173,6 +176,25 @@
         msg.textContent = "If that address has been invited, a code is on its way. It can take a minute to arrive.";
         step1.hidden = true; step2.hidden = false; code.focus();
       }, function () { send.disabled = false; msg.textContent = "Could not reach the sign-in service. Check the connection and try again."; });
+    });
+    pwBtn.addEventListener("click", function () {
+      var addr = email.value.trim();
+      if (!addr || !pw.value) { msg.textContent = "Enter your email address and password."; return; }
+      pwBtn.disabled = true;
+      msg.textContent = "Checking…";
+      fetch(C.SUPABASE_URL + "/auth/v1/token?grant_type=password", {
+        method: "POST", headers: { apikey: C.SUPABASE_ANON_KEY, "Content-Type": "application/json" },
+        body: JSON.stringify({ email: addr, password: pw.value })
+      }).then(function (r) {
+        return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, status: r.status, j: j }; });
+      }).then(function (res) {
+        pwBtn.disabled = false;
+        if (res.status === 429) { msg.textContent = "Too many attempts. Wait a minute and try again."; return; }
+        if (!res.ok || !res.j.access_token) { msg.textContent = "That email or password did not work."; return; }
+        pw.value = "";
+        saveSession(res.j);
+        bootstrap();
+      }, function () { pwBtn.disabled = false; msg.textContent = "Could not reach the sign-in service. Try again."; });
     });
     step2.addEventListener("submit", function (e) {
       e.preventDefault();
